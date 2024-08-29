@@ -1,4 +1,4 @@
 # Python virtual environment stuff
-./bin
-./lib
-./pyvenv.cfg
+/bin/*
+/lib/*
+pyvenv.cfg
