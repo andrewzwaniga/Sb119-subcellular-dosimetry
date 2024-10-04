@@ -1,0 +1,82 @@
+
+# Andrew Zwaniga PhD Thesis Work
+
+# Purpose: Simulate a point source of Sb119 decaying in a water sphere of radius 10 nm.
+# (1) Use GenericIon(51, 119, 0) and G4_WATER
+# (2) Score the dose to water as a function of radius. 
+# (3) Use g4em-dna_opt6 and g4radioactivedecay
+
+# Remark: This TOPAS script was written using /Users/azwaniga/phd/dissertation/119Sb/notebooks/phase-1/dpk/make-topas-scripts.py
+
+# ------------ MATERIALS ------------ #
+
+# ------------ GEOMETRY ------------ #
+# ------------ World ------------ #
+d:Ge/World/HLX = 10000. nm
+d:Ge/World/HLY = 10000. nm
+d:Ge/World/HLZ = 10000. nm
+s:Ge/World/DrawingStyle = "FullWireFrame"
+s:Ge/World/Material="Vacuum"
+
+# ------------ Water Sphere ------------ #
+s:Ge/WaterSphere/Type = "TsSphere"
+s:Ge/WaterSphere/Parent = "World"
+s:Ge/WaterSphere/Material = "G4_WATER"
+d:Ge/WaterSphere/RMin = 1 nm
+d:Ge/WaterSphere/RMax = 10 nm
+i:Ge/WaterSphere/RBins = 100
+d:Ge/WaterSphere/SPhi = 0. deg
+d:Ge/WaterSphere/DPhi = 360. deg
+d:Ge/WaterSphere/STheta = 0. deg
+d:Ge/WaterSphere/DTheta = 180. deg
+s:Ge/WaterSphere/Color = "blue"
+
+# ------------ SOURCE ------------ #
+s:So/Sb119/BeamParticle = "GenericIon(51,119,0)"
+d:So/Sb119/BeamEnergy = 0. eV
+s:So/Sb119/Type = "Isotropic"
+s:So/Sb119/Component = "WaterSphere"
+
+# ------------ SCORING ------------ #
+s:Sc/DosePointKernel/Quantity = "DoseToMedium"
+s:Sc/DosePointKernel/Component = "WaterSphere"
+s:Sc/DosePointKernel/OutputType = "CSV"
+s:Sc/DosePointKernel/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/DosePointKernel/OutputFile = "Sb119-DosePointKernel-10nm"
+sv:Sc/DosePointKernel/Report = 2 "Mean" "Standard_Deviation"
+
+# ------------ PHYSICS ------------ #
+sv:Ph/Default/Modules = 2 "g4em-dna_opt6" "g4radioactivedecay"
+d:Ph/Default/EMRangeMin = 10 eV
+d:Ph/Default/SetProductionCutLowerEdge = 10 eV
+d:Ph/Default/MaxStepSize = 1000. nm
+b:Ph/Default/Fluorescence = "True"
+b:Ph/Default/Auger = "True"
+b:Ph/Default/AugerCascade = "True"
+b:Ph/Default/DeexcitationIgnoreCut = "True"
+d:Ph/Default/DefaultRegionForTheWorld/CutForAllParticles = 1 nm
+
+# ------------ KEY ADJUSTABLES ------------ #
+i:So/Sb119/NumberOfHistoriesInRun = 1000000
+i:Ts/ShowHistoryCountAtInterval = 10000
+i:Ts/NumberOfThreads = 8
+i:Ts/seed = 501152494
+b:Ts/ShowCPUTime = "True"
+# ------------ GRAPHICS ------------ #
+# b:Ts/PauseBeforeQuit = "True"
+# s:Gr/MyGraphic1/Type = "OpenGL" # OpenGL, HepRep, VRML, DAWN, RayTracer, RayTracerX
+# u:Gr/MyGraphic1/Zoom = 2. # increase to zoom in, decrease to zoom out
+# d:Gr/MyGraphic1/Theta = 90. deg # view angle as in /vis/viewer/set/viewpointThetaPhi
+# d:Gr/MyGraphic1/Phi = 0. deg # view angle as in /vis/viewer/set/viewpointThetaPhi
+# u:Gr/MyGraphic1/TransX = 0. # move left or right in the view window
+# u:Gr/MyGraphic1/TransY = 0. # move up or down in the view window
+# s:Gr/MyGraphic1/Projection = "Perspective" # Defaults to "Orthogonal"
+# d:Gr/MyGraphic1/PerspectiveAngle = 10. deg # Increase for stronger perspective effect
+# i:Gr/MyGraphic1/WindowSizeX = 600
+# i:Gr/MyGraphic1/WindowSizeY = 600
+# i:Gr/MyGraphic1/WindowPosX = 0
+# i:Gr/MyGraphic1/WindowPosY = 0
+# # Remove hidden lines from wireframe geometries, like Geant4’s /vis/viewer/set/hiddenEdge
+# b:Gr/MyGraphic1/HiddenLineRemovalForGeometry = "False"
+# # Remove hidden trajectories lines from within geometries, like Geant4’s /vis/viewer/set/hiddenMarker
+# b:Gr/MyGraphic1/HiddenLineRemovalForTrajectories = "False"

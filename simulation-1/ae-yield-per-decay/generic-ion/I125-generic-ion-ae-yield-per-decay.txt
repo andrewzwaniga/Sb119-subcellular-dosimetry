@@ -1,0 +1,100 @@
+
+# Andrew Zwaniga PhD Thesis Work
+
+# Purpose: Simulate a point source of I-125 decaying in vacuum.
+# Specific aims: 
+# (1) Use GenericIon(53, 125, 0) spectrum and Vacuum
+# (2) Count the number of electrons and photons impingent on the outer surface of a vacuum sphere
+# (3) Use Geant4 EM Livermore
+
+# Remark: This TOPAS script was written using /Users/azwaniga/phd/dissertation/119Sb/notebooks/phase-1/ae-yield-per-decay/make-topas-scripts.py
+
+# ------------ MATERIALS ------------ #
+
+# ------------ GEOMETRY ------------ #
+# ------------ World ------------ #
+d:Ge/World/HLX = 1000. nm
+d:Ge/World/HLY = 1000. nm
+d:Ge/World/HLZ = 1000. nm
+s:Ge/World/DrawingStyle = "FullWireFrame"
+s:Ge/World/Material="Vacuum"
+
+# ------------ Vacuum Sphere ------------ #
+s:Ge/VacuumSphere/Type = "TsSphere"
+s:Ge/VacuumSphere/Parent = "World"
+s:Ge/VacuumSphere/Material = "Vacuum"
+d:Ge/VacuumSphere/RMax = 10 nm
+d:Ge/VacuumSphere/SPhi = 0. deg
+d:Ge/VacuumSphere/DPhi = 360. deg
+d:Ge/VacuumSphere/STheta = 0. deg
+d:Ge/VacuumSphere/DTheta = 180. deg
+s:Ge/VacuumSphere/Color = "white"
+
+# ------------ SOURCE ------------ #
+s:So/I125/BeamParticle = "GenericIon(53,125,0)"
+d:So/I125/BeamEnergy = 0. eV
+s:So/I125/Type = "Isotropic"
+s:So/I125/Component = "VacuumSphere"
+
+# ------------ SCORING ------------ #
+# ------------ Electrons ------------ #
+s:Sc/VacuumSpectrumElectrons/Quantity = "PhaseSpace"
+s:Sc/VacuumSpectrumElectrons/Surface = "VacuumSphere/OuterCurvedSurface"
+sv:Sc/VacuumSpectrumElectrons/OnlyIncludeParticlesNamed = 1 "e-"
+b:Sc/VacuumSpectrumElectrons/IncludeRunID = "True"
+b:Sc/VacuumSpectrumElectrons/IncludeEventID = "True"
+b:Sc/VacuumSpectrumElectrons/IncludeTrackID = "True"
+b:Sc/VacuumSpectrumElectrons/IncludeParentID = "True" # Track ID of parent particle
+b:Sc/VacuumSpectrumElectrons/IncludeCreatorProcess = "True"
+s:Sc/VacuumSpectrumElectrons/OutputType = "ASCII"
+s:Sc/VacuumSpectrumElectrons/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/VacuumSpectrumElectrons/OutputFile = "I125-VacuumSpectrumElectronsPhaseSpace"
+sv:Sc/VacuumSpectrumElectrons/Report = 2 "Mean" "Standard_Deviation"
+# ------------ Photons ------------ #
+s:Sc/VacuumSpectrumPhotons/Quantity = "PhaseSpace"
+s:Sc/VacuumSpectrumPhotons/Surface = "VacuumSphere/OuterCurvedSurface"
+sv:Sc/VacuumSpectrumPhotons/OnlyIncludeParticlesNamed = 1 "gamma"
+b:Sc/VacuumSpectrumPhotons/IncludeRunID = "True"
+b:Sc/VacuumSpectrumPhotons/IncludeEventID = "True"
+b:Sc/VacuumSpectrumPhotons/IncludeTrackID = "True"
+b:Sc/VacuumSpectrumPhotons/IncludeParentID = "True" # Track ID of parent particle
+b:Sc/VacuumSpectrumPhotons/IncludeCreatorProcess = "True"
+s:Sc/VacuumSpectrumPhotons/OutputType = "ASCII"
+s:Sc/VacuumSpectrumPhotons/IfOutputFileAlreadyExists = "Overwrite"
+s:Sc/VacuumSpectrumPhotons/OutputFile = "I125-VacuumSpectrumPhotonsPhaseSpace"
+sv:Sc/VacuumSpectrumPhotons/Report = 2 "Mean" "Standard_Deviation"
+
+# ------------ PHYSICS ------------ #
+sv:Ph/Default/Modules = 2 "g4em-livermore" "g4radioactivedecay"
+d:Ph/Default/EMRangeMin = 100 eV
+d:Ph/Default/SetProductionCutLowerEdge = 100 eV
+d:Ph/Default/MaxStepSize = 1000. nm
+b:Ph/Default/Fluorescence = "True"
+b:Ph/Default/Auger = "True"
+b:Ph/Default/AugerCascade = "True"
+b:Ph/Default/DeexcitationIgnoreCut = "True"
+
+# ------------ KEY ADJUSTABLES ------------ #
+i:So/I125/NumberOfHistoriesInRun = 10000000
+i:Ts/ShowHistoryCountAtInterval = 100000
+i:Ts/NumberOfThreads = 8
+i:Ts/seed = 123456789
+b:Ts/ShowCPUTime = "True"
+# ------------ GRAPHICS ------------ #
+# b:Ts/PauseBeforeQuit = "True"
+# s:Gr/MyGraphic1/Type = "OpenGL" # OpenGL, HepRep, VRML, DAWN, RayTracer, RayTracerX
+# u:Gr/MyGraphic1/Zoom = 2. # increase to zoom in, decrease to zoom out
+# d:Gr/MyGraphic1/Theta = 90. deg # view angle as in /vis/viewer/set/viewpointThetaPhi
+# d:Gr/MyGraphic1/Phi = 0. deg # view angle as in /vis/viewer/set/viewpointThetaPhi
+# u:Gr/MyGraphic1/TransX = 0. # move left or right in the view window
+# u:Gr/MyGraphic1/TransY = 0. # move up or down in the view window
+# s:Gr/MyGraphic1/Projection = "Perspective" # Defaults to "Orthogonal"
+# d:Gr/MyGraphic1/PerspectiveAngle = 10. deg # Increase for stronger perspective effect
+# i:Gr/MyGraphic1/WindowSizeX = 600
+# i:Gr/MyGraphic1/WindowSizeY = 600
+# i:Gr/MyGraphic1/WindowPosX = 0
+# i:Gr/MyGraphic1/WindowPosY = 0
+# # Remove hidden lines from wireframe geometries, like Geant4’s /vis/viewer/set/hiddenEdge
+# b:Gr/MyGraphic1/HiddenLineRemovalForGeometry = "False"
+# # Remove hidden trajectories lines from within geometries, like Geant4’s /vis/viewer/set/hiddenMarker
+# b:Gr/MyGraphic1/HiddenLineRemovalForTrajectories = "False"
